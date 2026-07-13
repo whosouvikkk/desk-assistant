@@ -3,118 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arcane Assistant</title>
+    <title>Arcane OS Public Assistant</title>
     <style>
+        /* Styles for the main website */
         body {
             background-color: #121212;
             color: #ffffff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 90vh;
-            overflow: hidden;
+            height: 100vh;
+            margin: 0;
         }
 
-        .container {
-            text-align: center;
-        }
-
-        h1 { color: #a855f7; margin-bottom: 5px; font-size: 24px; }
-        p { color: #a1a1aa; font-size: 14px; margin-bottom: 40px; }
-
-        /* The Witch Assistant Widget */
-        .witch-container {
-            position: relative;
-            display: inline-block;
+        .launch-btn {
+            background: linear-gradient(135deg, #a855f7, #ec4899);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
             cursor: pointer;
-        }
-
-        .witch-avatar {
-            width: 140px;
-            height: 140px;
-            background-image: url('witch.png'); /* Reads witch.png from your root folder */
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            animation: float 3s ease-in-out infinite;
-            filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.6));
             transition: transform 0.2s;
         }
 
-        .witch-container:hover .witch-avatar {
-            transform: scale(1.05);
+        .launch-btn:hover {
+            transform: translateY(-2px);
         }
 
-        /* Ambient Pulsing Ring behind the witch */
-        .pulse-ring {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 130px;
-            height: 130px;
-            border: 2px solid #a855f7;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-            z-index: -1;
-            opacity: 0;
-        }
-
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-12px); }
-            100% { transform: translateY(0px); }
-        }
-
-        @keyframes pulse {
-            0% { width: 130px; height: 130px; opacity: 0.6; }
-            100% { width: 180px; height: 180px; opacity: 0; }
-        }
-
-        .log-box {
-            margin-top: 30px;
-            background: #1e1e1e;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #333;
-            font-size: 13px;
-            color: #e4e4e7;
-            width: 80%;
-            min-height: 40px;
+        #error-msg {
+            color: #ef4444;
+            margin-top: 20px;
+            display: none;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Arcane OS</h1>
-        <p>Click the witch to summon assistance</p>
-
-        <!-- Interactive Avatar Element -->
-        <div class="witch-container" onclick="askAssistant()">
-            <div class="pulse-ring"></div>
-            <div class="witch-avatar"></div>
-        </div>
-
-        <!-- Box to show response messages -->
-        <div class="log-box" id="response-output">
-            System Idle. Waiting for trigger...
-        </div>
-    </div>
+    <h1>Arcane OS</h1>
+    <p>Zero-install floating assistant.</p>
+    <button class="launch-btn" onclick="launchFloatingAvatar()">Launch Assistant</button>
+    <p id="error-msg">Your browser doesn't support the Document PiP API. Please use Chrome or Edge.</p>
 
     <script>
-        function askAssistant() {
-            const output = document.getElementById('response-output');
-            
-            // Open a pop-up input question frame
-            const promptValue = window.prompt("What is your request, traveler?");
-            
-            if (promptValue) {
-                output.innerText = `Processing request: "${promptValue}"... (You can add custom action logic here later!)`;
+        async function launchFloatingAvatar() {
+            // Check if the browser supports the zero-install floating window API
+            if (!('documentPictureInPicture' in window)) {
+                document.getElementById('error-msg').style.display = 'block';
+                return;
+            }
+
+            try {
+                // 1. Open the floating, always-on-top window
+                const pipWindow = await window.documentPictureInPicture.requestWindow({
+                    width: 200,
+                    height: 250
+                });
+
+                // 2. Inject styles into the floating window
+                const style = pipWindow.document.createElement('style');
+                style.textContent = `
+                    body {
+                        margin: 0;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        background-color: #1e1e1e;
+                        height: 100vh;
+                        overflow: hidden;
+                        font-family: sans-serif;
+                    }
+                    .witch-avatar {
+                        width: 120px;
+                        height: 120px;
+                        background-image: url('witch.png'); /* Reads from your Vercel root */
+                        background-size: contain;
+                        background-repeat: no-repeat;
+                        background-position: center;
+                        animation: float 3s ease-in-out infinite;
+                        cursor: pointer;
+                        filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.5));
+                    }
+                    .status {
+                        color: #a855f7;
+                        font-size: 12px;
+                        margin-top: 15px;
+                        text-align: center;
+                    }
+                    @keyframes float {
+                        0% { transform: translateY(0px); }
+                        50% { transform: translateY(-10px); }
+                        100% { transform: translateY(0px); }
+                    }
+                `;
+                pipWindow.document.head.appendChild(style);
+
+                // 3. Inject the Avatar HTML into the floating window
+                const container = pipWindow.document.createElement('div');
+                
+                const avatar = pipWindow.document.createElement('div');
+                avatar.className = 'witch-avatar';
+                
+                const status = pipWindow.document.createElement('div');
+                status.className = 'status';
+                status.innerText = 'Online';
+
+                // Add the click event to interact with the floating avatar
+                avatar.onclick = () => {
+                    // This opens a prompt inside the floating window
+                    const userRequest = pipWindow.prompt("What do you need help with?");
+                    if (userRequest) {
+                        status.innerText = "Processing...";
+                        // Simulate a delay for the agent "thinking"
+                        setTimeout(() => {
+                            status.innerText = "Waiting for new task";
+                            pipWindow.alert(`You asked: "${userRequest}". (AI backend integration goes here)`);
+                        }, 1000);
+                    }
+                };
+
+                container.appendChild(avatar);
+                container.appendChild(status);
+                pipWindow.document.body.appendChild(container);
+
+            } catch (error) {
+                console.error("Failed to launch floating window:", error);
             }
         }
     </script>
