@@ -3,60 +3,223 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Witch Agent Control Center</title>
+    <title>Arcane Assistant</title>
     <style>
         body {
-            background-color: #121212; color: #ffffff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden;
+            background-color: #121212;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
         }
-        .container {
-            text-align: center; background: #1e1e1e; padding: 40px; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); border: 1px solid #333;
+
+        .main-content {
+            text-align: center;
         }
-        h1 { margin-bottom: 10px; color: #a855f7; }
-        p { color: #a1a1aa; margin-bottom: 30px; }
-        .launch-btn {
-            background: linear-gradient(135deg, #a855f7, #ec4899); color: white; border: none; padding: 15px 30px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: transform 0.2s;
-        }
-        .launch-btn:hover { transform: translateY(-2px); }
-        
+
+        h1 { color: #a855f7; }
+
+        /* The Floating Avatar Button */
         #witch-avatar {
-            display: none; position: fixed; bottom: 20px; right: 20px; width: 120px; height: 120px;
-            background-image: url('witch.png'); /* Vercel will find the image in your root folder */
-            background-size: contain; background-repeat: no-repeat; background-position: center;
-            cursor: grab; animation: float 3s ease-in-out infinite; filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.6)); z-index: 1000;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 80px;
+            height: 80px;
+            background-color: #a855f7; /* Fallback color */
+            background-image: url('witch.png'); /* Add your image file here */
+            background-size: cover;
+            background-position: center;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+            transition: transform 0.2s;
+            z-index: 1000;
         }
-        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
+
+        #witch-avatar:hover {
+            transform: scale(1.1);
+        }
+
+        /* The Chat Window */
+        #chat-window {
+            display: none; /* Hidden by default */
+            position: fixed;
+            bottom: 120px;
+            right: 30px;
+            width: 300px;
+            height: 400px;
+            background-color: #1e1e1e;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+            border: 1px solid #333;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .chat-header {
+            background-color: #2d2d2d;
+            padding: 15px;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            color: #a855f7;
+            border-bottom: 1px solid #333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #a1a1aa;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .close-btn:hover { color: white; }
+
+        .chat-history {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Message Bubbles */
+        .msg {
+            padding: 10px 14px;
+            border-radius: 12px;
+            max-width: 80%;
+            font-size: 14px;
+        }
+
+        .msg.user {
+            background-color: #a855f7;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+        }
+
+        .msg.bot {
+            background-color: #333;
+            color: #e4e4e7;
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+        }
+
+        .chat-input-area {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #333;
+        }
+
+        #chat-input {
+            flex-grow: 1;
+            background-color: #121212;
+            color: white;
+            border: 1px solid #444;
+            padding: 10px;
+            border-radius: 6px;
+            outline: none;
+        }
+
+        #chat-input:focus { border-color: #a855f7; }
+
+        #send-btn {
+            background-color: #a855f7;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin-left: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #send-btn:hover { background-color: #9333ea; }
+
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Arcane OS</h1>
-        <p>Your screen-reading coding companion.</p>
-        <button class="launch-btn" onclick="launchAgent()">Launch Assistant</button>
-        <p id="status" style="margin-top: 15px; font-size: 14px; color: #a855f7; display: none;"></p>
+    <div class="main-content">
+        <h1>Welcome to My Website</h1>
+        <p>The assistant is resting in the corner.</p>
     </div>
 
-    <div id="witch-avatar"></div>
+    <!-- 1. The Avatar Button -->
+    <div id="witch-avatar" onclick="toggleChat()"></div>
+
+    <!-- 2. The Chat Window -->
+    <div id="chat-window">
+        <div class="chat-header">
+            <span>Arcane Assistant</span>
+            <button class="close-btn" onclick="toggleChat()">✖</button>
+        </div>
+        
+        <div class="chat-history" id="chat-history">
+            <div class="msg bot">Hello! How can I help you today?</div>
+        </div>
+        
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" placeholder="Ask a question..." onkeypress="handleEnter(event)">
+            <button id="send-btn" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
 
     <script>
-        const avatar = document.getElementById('witch-avatar');
-        
-        function launchAgent() {
-            const statusText = document.getElementById('status');
-            avatar.style.display = 'block'; 
-            statusText.style.display = 'block';
-            statusText.innerText = "Attempting to wake desktop agent...";
+        const chatWindow = document.getElementById('chat-window');
+        const chatInput = document.getElementById('chat-input');
+        const chatHistory = document.getElementById('chat-history');
+        let isOpen = false;
 
-            // Use 127.0.0.1 instead of localhost to bypass Vercel's HTTPS mixed-content blocks
-            fetch('http://127.0.0.1:8000/launch', { method: 'POST' })
-                .then(response => {
-                    statusText.innerText = "Desktop Agent Launched Successfully!";
-                })
-                .catch(error => {
-                    statusText.style.color = '#ef4444';
-                    statusText.innerText = "Local Python server not running. Start agent.py on your laptop!";
-                });
+        // Toggle the chat window open/closed
+        function toggleChat() {
+            isOpen = !isOpen;
+            chatWindow.style.display = isOpen ? 'flex' : 'none';
+            if (isOpen) {
+                chatInput.focus();
+            }
+        }
+
+        // Send a message
+        function sendMessage() {
+            const text = chatInput.value.trim();
+            if (!text) return;
+
+            // 1. Add User Message
+            addMessage(text, 'user');
+            chatInput.value = ''; // Clear input
+
+            // 2. Simulate Bot Thinking...
+            setTimeout(() => {
+                addMessage("I am a simple mockup right now. You'll need to connect me to an AI API to make me smart!", 'bot');
+            }, 1000);
+        }
+
+        // Allow pressing 'Enter' to send
+        function handleEnter(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // HTML builder for message bubbles
+        function addMessage(text, sender) {
+            const div = document.createElement('div');
+            div.className = `msg ${sender}`;
+            div.textContent = text;
+            chatHistory.appendChild(div);
+            
+            // Scroll to bottom
+            chatHistory.scrollTop = chatHistory.scrollHeight;
         }
     </script>
 </body>
