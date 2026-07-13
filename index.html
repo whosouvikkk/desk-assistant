@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arcane OS Public Assistant</title>
+    <title>Arcane OS Dashboard</title>
     <style>
-        /* Styles for the main website */
         body {
             background-color: #121212;
             color: #ffffff;
@@ -45,89 +44,101 @@
 
     <h1>Arcane OS</h1>
     <p>Zero-install floating assistant.</p>
-    <button class="launch-btn" onclick="launchFloatingAvatar()">Launch Assistant</button>
+    <button class="launch-btn" onclick="launchWitch()">Summon Assistant</button>
     <p id="error-msg">Your browser doesn't support the Document PiP API. Please use Chrome or Edge.</p>
 
     <script>
-        async function launchFloatingAvatar() {
-            // Check if the browser supports the zero-install floating window API
+        async function launchWitch() {
             if (!('documentPictureInPicture' in window)) {
                 document.getElementById('error-msg').style.display = 'block';
                 return;
             }
 
             try {
-                // 1. Open the floating, always-on-top window
+                // 1. Open a very small, square floating window
                 const pipWindow = await window.documentPictureInPicture.requestWindow({
                     width: 200,
-                    height: 250
+                    height: 200
                 });
 
-                // 2. Inject styles into the floating window
+                // 2. Inject CSS directly into the floating window
+                // We use #121212 to make the background blend smoothly
                 const style = pipWindow.document.createElement('style');
                 style.textContent = `
                     body {
                         margin: 0;
                         display: flex;
-                        flex-direction: column;
                         align-items: center;
                         justify-content: center;
-                        background-color: #1e1e1e;
+                        background-color: #121212; 
                         height: 100vh;
                         overflow: hidden;
-                        font-family: sans-serif;
+                    }
+                    .witch-container {
+                        position: relative;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        cursor: pointer;
                     }
                     .witch-avatar {
-                        width: 120px;
-                        height: 120px;
-                        background-image: url('witch.png'); /* Reads from your Vercel root */
+                        width: 130px;
+                        height: 130px;
+                        background-image: url('witch.png'); /* Ensure witch.png is in your Vercel root */
                         background-size: contain;
                         background-repeat: no-repeat;
                         background-position: center;
                         animation: float 3s ease-in-out infinite;
-                        cursor: pointer;
                         filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.5));
+                        z-index: 2;
                     }
-                    .status {
-                        color: #a855f7;
-                        font-size: 12px;
-                        margin-top: 15px;
-                        text-align: center;
+                    .pulse-ring {
+                        position: absolute;
+                        width: 100px;
+                        height: 100px;
+                        border: 2px solid rgba(168, 85, 247, 0.8);
+                        border-radius: 50%;
+                        animation: pulse 2s infinite;
+                        z-index: 1;
+                        opacity: 0;
+                    }
+                    .witch-container:hover .witch-avatar {
+                        transform: scale(1.05);
+                        transition: transform 0.2s;
                     }
                     @keyframes float {
                         0% { transform: translateY(0px); }
-                        50% { transform: translateY(-10px); }
+                        50% { transform: translateY(-8px); }
                         100% { transform: translateY(0px); }
+                    }
+                    @keyframes pulse {
+                        0% { width: 100px; height: 100px; opacity: 0.8; }
+                        100% { width: 180px; height: 180px; opacity: 0; }
                     }
                 `;
                 pipWindow.document.head.appendChild(style);
 
-                // 3. Inject the Avatar HTML into the floating window
+                // 3. Build the Avatar Element
                 const container = pipWindow.document.createElement('div');
-                
+                container.className = 'witch-container';
+
+                const pulse = pipWindow.document.createElement('div');
+                pulse.className = 'pulse-ring';
+
                 const avatar = pipWindow.document.createElement('div');
                 avatar.className = 'witch-avatar';
-                
-                const status = pipWindow.document.createElement('div');
-                status.className = 'status';
-                status.innerText = 'Online';
 
-                // Add the click event to interact with the floating avatar
-                avatar.onclick = () => {
-                    // This opens a prompt inside the floating window
-                    const userRequest = pipWindow.prompt("What do you need help with?");
+                // 4. Add Click Behavior
+                container.onclick = () => {
+                    const userRequest = pipWindow.prompt("What do you need, traveler?");
                     if (userRequest) {
-                        status.innerText = "Processing...";
-                        // Simulate a delay for the agent "thinking"
-                        setTimeout(() => {
-                            status.innerText = "Waiting for new task";
-                            pipWindow.alert(`You asked: "${userRequest}". (AI backend integration goes here)`);
-                        }, 1000);
+                        pipWindow.alert(`You asked: "${userRequest}"`);
                     }
                 };
 
+                // Combine and inject into the PiP window
+                container.appendChild(pulse);
                 container.appendChild(avatar);
-                container.appendChild(status);
                 pipWindow.document.body.appendChild(container);
 
             } catch (error) {
