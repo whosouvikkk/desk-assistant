@@ -10,216 +10,112 @@
             color: #ffffff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
+            padding: 20px;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            height: 90vh;
+            overflow: hidden;
         }
 
-        .main-content {
+        .container {
             text-align: center;
         }
 
-        h1 { color: #a855f7; }
+        h1 { color: #a855f7; margin-bottom: 5px; font-size: 24px; }
+        p { color: #a1a1aa; font-size: 14px; margin-bottom: 40px; }
 
-        /* The Floating Avatar Button */
-        #witch-avatar {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 80px;
-            height: 80px;
-            background-color: #a855f7; /* Fallback color */
-            background-image: url('witch.png'); /* Add your image file here */
-            background-size: cover;
+        /* The Witch Assistant Widget */
+        .witch-container {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .witch-avatar {
+            width: 140px;
+            height: 140px;
+            background-image: url('witch.png'); /* Reads witch.png from your root folder */
+            background-size: contain;
+            background-repeat: no-repeat;
             background-position: center;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+            animation: float 3s ease-in-out infinite;
+            filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.6));
             transition: transform 0.2s;
-            z-index: 1000;
         }
 
-        #witch-avatar:hover {
-            transform: scale(1.1);
+        .witch-container:hover .witch-avatar {
+            transform: scale(1.05);
         }
 
-        /* The Chat Window */
-        #chat-window {
-            display: none; /* Hidden by default */
-            position: fixed;
-            bottom: 120px;
-            right: 30px;
-            width: 300px;
-            height: 400px;
-            background-color: #1e1e1e;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+        /* Ambient Pulsing Ring behind the witch */
+        .pulse-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 130px;
+            height: 130px;
+            border: 2px solid #a855f7;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+            z-index: -1;
+            opacity: 0;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-12px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes pulse {
+            0% { width: 130px; height: 130px; opacity: 0.6; }
+            100% { width: 180px; height: 180px; opacity: 0; }
+        }
+
+        .log-box {
+            margin-top: 30px;
+            background: #1e1e1e;
+            padding: 15px;
+            border-radius: 8px;
             border: 1px solid #333;
-            flex-direction: column;
-            z-index: 1000;
-        }
-
-        .chat-header {
-            background-color: #2d2d2d;
-            padding: 15px;
-            border-top-left-radius: 12px;
-            border-top-right-radius: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: bold;
-            color: #a855f7;
-            border-bottom: 1px solid #333;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            color: #a1a1aa;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        .close-btn:hover { color: white; }
-
-        .chat-history {
-            flex-grow: 1;
-            padding: 15px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        /* Message Bubbles */
-        .msg {
-            padding: 10px 14px;
-            border-radius: 12px;
-            max-width: 80%;
-            font-size: 14px;
-        }
-
-        .msg.user {
-            background-color: #a855f7;
-            color: white;
-            align-self: flex-end;
-            border-bottom-right-radius: 2px;
-        }
-
-        .msg.bot {
-            background-color: #333;
+            font-size: 13px;
             color: #e4e4e7;
-            align-self: flex-start;
-            border-bottom-left-radius: 2px;
+            width: 80%;
+            min-height: 40px;
         }
-
-        .chat-input-area {
-            display: flex;
-            padding: 10px;
-            border-top: 1px solid #333;
-        }
-
-        #chat-input {
-            flex-grow: 1;
-            background-color: #121212;
-            color: white;
-            border: 1px solid #444;
-            padding: 10px;
-            border-radius: 6px;
-            outline: none;
-        }
-
-        #chat-input:focus { border-color: #a855f7; }
-
-        #send-btn {
-            background-color: #a855f7;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            margin-left: 8px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        #send-btn:hover { background-color: #9333ea; }
-
     </style>
 </head>
 <body>
 
-    <div class="main-content">
-        <h1>Welcome to My Website</h1>
-        <p>The assistant is resting in the corner.</p>
-    </div>
+    <div class="container">
+        <h1>Arcane OS</h1>
+        <p>Click the witch to summon assistance</p>
 
-    <!-- 1. The Avatar Button -->
-    <div id="witch-avatar" onclick="toggleChat()"></div>
+        <!-- Interactive Avatar Element -->
+        <div class="witch-container" onclick="askAssistant()">
+            <div class="pulse-ring"></div>
+            <div class="witch-avatar"></div>
+        </div>
 
-    <!-- 2. The Chat Window -->
-    <div id="chat-window">
-        <div class="chat-header">
-            <span>Arcane Assistant</span>
-            <button class="close-btn" onclick="toggleChat()">✖</button>
-        </div>
-        
-        <div class="chat-history" id="chat-history">
-            <div class="msg bot">Hello! How can I help you today?</div>
-        </div>
-        
-        <div class="chat-input-area">
-            <input type="text" id="chat-input" placeholder="Ask a question..." onkeypress="handleEnter(event)">
-            <button id="send-btn" onclick="sendMessage()">Send</button>
+        <!-- Box to show response messages -->
+        <div class="log-box" id="response-output">
+            System Idle. Waiting for trigger...
         </div>
     </div>
 
     <script>
-        const chatWindow = document.getElementById('chat-window');
-        const chatInput = document.getElementById('chat-input');
-        const chatHistory = document.getElementById('chat-history');
-        let isOpen = false;
-
-        // Toggle the chat window open/closed
-        function toggleChat() {
-            isOpen = !isOpen;
-            chatWindow.style.display = isOpen ? 'flex' : 'none';
-            if (isOpen) {
-                chatInput.focus();
-            }
-        }
-
-        // Send a message
-        function sendMessage() {
-            const text = chatInput.value.trim();
-            if (!text) return;
-
-            // 1. Add User Message
-            addMessage(text, 'user');
-            chatInput.value = ''; // Clear input
-
-            // 2. Simulate Bot Thinking...
-            setTimeout(() => {
-                addMessage("I am a simple mockup right now. You'll need to connect me to an AI API to make me smart!", 'bot');
-            }, 1000);
-        }
-
-        // Allow pressing 'Enter' to send
-        function handleEnter(event) {
-            if (event.key === 'Enter') {
-                sendMessage();
-            }
-        }
-
-        // HTML builder for message bubbles
-        function addMessage(text, sender) {
-            const div = document.createElement('div');
-            div.className = `msg ${sender}`;
-            div.textContent = text;
-            chatHistory.appendChild(div);
+        function askAssistant() {
+            const output = document.getElementById('response-output');
             
-            // Scroll to bottom
-            chatHistory.scrollTop = chatHistory.scrollHeight;
+            // Open a pop-up input question frame
+            const promptValue = window.prompt("What is your request, traveler?");
+            
+            if (promptValue) {
+                output.innerText = `Processing request: "${promptValue}"... (You can add custom action logic here later!)`;
+            }
         }
     </script>
 </body>
