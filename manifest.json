@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Arcane OS Assistant",
+  "version": "1.0",
+  "description": "A persistent floating assistant that stays visible everywhere you browse.",
+  "permissions": [
+    "sidePanel"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Launch Arcane Assistant"
+  },
+  "side_panel": {
+    "default_path": "index.html"
+  }
+}
