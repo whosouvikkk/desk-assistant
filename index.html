@@ -6,72 +6,26 @@
     <title>Witch Agent Control Center</title>
     <style>
         body {
-            background-color: #121212;
-            color: #ffffff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
+            background-color: #121212; color: #ffffff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden;
         }
-
         .container {
-            text-align: center;
-            background: #1e1e1e;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-            border: 1px solid #333;
+            text-align: center; background: #1e1e1e; padding: 40px; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); border: 1px solid #333;
         }
-
         h1 { margin-bottom: 10px; color: #a855f7; }
         p { color: #a1a1aa; margin-bottom: 30px; }
-
         .launch-btn {
-            background: linear-gradient(135deg, #a855f7, #ec4899);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            background: linear-gradient(135deg, #a855f7, #ec4899); color: white; border: none; padding: 15px 30px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: transform 0.2s;
         }
-
-        .launch-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(168, 85, 247, 0.4);
-        }
-
-        /* The Floating Avatar Widget (Hidden by default) */
+        .launch-btn:hover { transform: translateY(-2px); }
+        
         #witch-avatar {
-            display: none;
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 120px;
-            height: 120px;
-            background-image: url('witch.png'); /* Replace with your image file name */
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            cursor: grab;
-            animation: float 3s ease-in-out infinite;
-            filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.6));
-            z-index: 1000;
+            display: none; position: fixed; bottom: 20px; right: 20px; width: 120px; height: 120px;
+            background-image: url('witch.png'); /* Vercel will find the image in your root folder */
+            background-size: contain; background-repeat: no-repeat; background-position: center;
+            cursor: grab; animation: float 3s ease-in-out infinite; filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.6)); z-index: 1000;
         }
-
-        #witch-avatar:active { cursor: grabbing; }
-
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-15px); }
-            100% { transform: translateY(0px); }
-        }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
     </style>
 </head>
 <body>
@@ -80,60 +34,28 @@
         <h1>Arcane OS</h1>
         <p>Your screen-reading coding companion.</p>
         <button class="launch-btn" onclick="launchAgent()">Launch Assistant</button>
-        <p id="status" style="margin-top: 15px; font-size: 14px; color: #a855f7; display: none;">Connecting to local Python server...</p>
+        <p id="status" style="margin-top: 15px; font-size: 14px; color: #a855f7; display: none;"></p>
     </div>
 
-    <!-- The Avatar -->
     <div id="witch-avatar"></div>
 
     <script>
-        // Make the avatar draggable inside the browser for the demo
         const avatar = document.getElementById('witch-avatar');
-        let isDragging = false;
-        let offsetX, offsetY;
-
-        avatar.addEventListener('mousedown', (e) => {
-            isDragging = true;
-            offsetX = e.clientX - avatar.getBoundingClientRect().left;
-            offsetY = e.clientY - avatar.getBoundingClientRect().top;
-            avatar.style.animation = 'none'; // Stop floating while dragging
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (isDragging) {
-                avatar.style.left = (e.clientX - offsetX) + 'px';
-                avatar.style.top = (e.clientY - offsetY) + 'px';
-                avatar.style.bottom = 'auto'; // Disable default bottom positioning
-                avatar.style.right = 'auto'; // Disable default right positioning
-            }
-        });
-
-        document.addEventListener('mouseup', () => {
-            if (isDragging) {
-                isDragging = false;
-                avatar.style.animation = 'float 3s ease-in-out infinite'; // Resume floating
-            }
-        });
-
-        // The Launch Function
+        
         function launchAgent() {
             const statusText = document.getElementById('status');
-            
-            // 1. Show the avatar inside the browser UI (Simulation)
-            avatar.style.display = 'block';
-            
-            // 2. Try to signal the local Python app to launch the real desktop widget
+            avatar.style.display = 'block'; 
             statusText.style.display = 'block';
             statusText.innerText = "Attempting to wake desktop agent...";
 
-            // This is the "Bridge" - It pings the Python script running on your PC
-            fetch('http://localhost:8000/launch', { method: 'POST' })
+            // Use 127.0.0.1 instead of localhost to bypass Vercel's HTTPS mixed-content blocks
+            fetch('http://127.0.0.1:8000/launch', { method: 'POST' })
                 .then(response => {
                     statusText.innerText = "Desktop Agent Launched Successfully!";
                 })
                 .catch(error => {
                     statusText.style.color = '#ef4444';
-                    statusText.innerText = "Local python server not running. (Only browser demo active)";
+                    statusText.innerText = "Local Python server not running. Start agent.py on your laptop!";
                 });
         }
     </script>
